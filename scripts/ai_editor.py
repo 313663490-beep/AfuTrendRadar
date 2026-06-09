@@ -4,7 +4,13 @@ import re
 import requests
 
 import config
-from topic_rules import afu_fit_level, classify_topic, default_afu_scene, rule_score
+from topic_rules import (
+    HEALTH_SCOPE,
+    afu_fit_level,
+    classify_topic,
+    default_afu_scene,
+    rule_score,
+)
 
 
 def _fallback_analysis(item):
@@ -18,12 +24,6 @@ def _fallback_analysis(item):
         afu = default_afu_scene(title)
         title_suggestion = f"{title}，普通人最该先看懂什么？"
         format_suggestion = "小红书图文卡片 + 微博短评"
-    elif "财经理财" in labels:
-        platform = "钉钉 / 微博"
-        angle = "提炼政策或市场变化对普通人的影响，避免直接给投资建议。"
-        afu = "仅做信息提醒，不强行挂阿福。"
-        title_suggestion = f"{title}，和普通人有什么关系？"
-        format_suggestion = "钉钉内参"
     else:
         platform = "微博"
         angle = "先观察热度，只有能自然切健康或生活方式时再跟。"
@@ -94,7 +94,7 @@ def analyze_topics(items):
 - title：原热搜标题
 - rank：热搜排位
 - score：0-100，越高越值得立即跟进
-- category：健康风险/生活方式/女性家庭/情绪心理/财经理财/娱乐IP/泛热点 等
+- category：疾病公共卫生/饮食体重管理/生活方式身心/母婴女性家庭/环境意外伤害/医疗制度政策/娱乐IP/泛热点 等
 - afu_fit：强/中/弱，判断这个热点和阿福是否能自然承接
 - platform：适合 小红书/微博/钉钉内参/不建议跟进，可多选
 - title_suggestion：给运营的标题建议，优先小红书语感；不适合则写“暂不建议产出”
@@ -106,6 +106,7 @@ def analyze_topics(items):
 - reason：一句话说明判断依据
 
 判断标准：
+0. 本仓库只做蚂蚁阿福健康选题，不做理财、财经、投资播报；除非热搜本身与医保、医疗政策、就医支付直接相关，否则不要把财经类话题纳入。
 1. 小红书优先：生活方式、女性健康、情绪睡眠、体检报告、用药、爸妈健康、饮食安全、季节健康。
 2. 微博优先：突发公共健康、明星/IP 中能自然切健康的事件、可以快速评论的健康风险。
 3. 钉钉内参：值得提醒运营但未必适合马上发内容的热点。
@@ -113,6 +114,9 @@ def analyze_topics(items):
 5. 不要为了阿福硬蹭热点。必须能回答“用户为什么点、为什么收藏、为什么会问阿福”。
 6. 小红书标题要像人话，优先使用：第一批、别再、建议、发给爸妈、到底、先别慌、不是矫情 等结构。
 7. 任何医疗建议都要保守，不能替代医生诊断。
+
+健康全场景监测范围：
+{json.dumps(HEALTH_SCOPE, ensure_ascii=False, indent=2)}
 
 热搜列表：
 {json.dumps(compact_items, ensure_ascii=False)}
